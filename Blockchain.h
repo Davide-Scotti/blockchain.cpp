@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "Block.h"
-#include "Transaction.h"
+#include "Transaction.h" // Aggiunta
 
 class Blockchain {
     private: 
@@ -37,6 +37,5 @@ class Blockchain {
         // Verifica e correggi la validità della blockchain se necessario
         void validateChain();
 };
-
 
 #endif //BLOCKCHAIN_H
