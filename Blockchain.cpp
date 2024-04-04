@@ -9,7 +9,7 @@ Blockchain::Blockchain(uint32_t diff, double rew) : difficulty(diff), reward(rew
 }
 
 Block Blockchain::createGenesisBlock() {
-    return Block(0, "Genesis Block", "0");
+    return Block(0, std::vector<Transaction>(), "Genesis Block");
 }
 
 void Blockchain::addTransaction(const Transaction& transaction) {
@@ -17,7 +17,7 @@ void Blockchain::addTransaction(const Transaction& transaction) {
 }
 
 void Blockchain::minePendingTransactions(const std::string& minerAddress) {
-    Block block(chain.back().getIndex() + 1, pendingTransactions);
+    Block block(chain.back().getIndex() + 1, pendingTransactions, minerAddress);
     block.mineBlock(difficulty);
     chain.push_back(block);
     pendingTransactions.clear();
@@ -33,10 +33,12 @@ void Blockchain::printChain() const {
                   << " - Previous Hash: " << block.getPreviousHash() << std::endl;
 
         std::cout << "Transactions:" << std::endl;
-        for (const auto &transaction : block.getTransactions()) {
-            std::cout << "\t" << transaction.getSender() << " -> " << transaction.getRecipient()
-                      << ": " << transaction.getAmount() << " coins" << std::endl;
-        }
+        // NOTA: La funzione getTransactions() deve essere implementata nella classe Block
+        // per ottenere il vettore di transazioni.
+        //for (const auto &transaction : block.getTransactions()) {
+        //    std::cout << "\t" << transaction.getSender() << " -> " << transaction.getRecipient()
+        //              << ": " << transaction.getAmount() << " coins" << std::endl;
+        //}
         std::cout << std::endl;
     }
 }

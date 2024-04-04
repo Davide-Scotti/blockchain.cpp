@@ -2,8 +2,6 @@
 #include <openssl/evp.h>
 #include <openssl/ec.h>
 #include <openssl/pem.h>
-#include <openssl/err.h>
-#include <cstring>
 #include <iostream>
 
 Transaction::Transaction(const std::string& from, const std::string& to, double amt)
@@ -39,7 +37,7 @@ void Transaction::signTransaction(EC_KEY* privateKey) {
     std::string transactionData = toString();
     unsigned char* hash = new unsigned char[EVP_MAX_MD_SIZE];
     size_t hashLen;
-    if (EVP_DigestSign(mdCtx, NULL, &hashLen, (const unsigned char*)transactionData.c_str(), transactionData.size()) <= 0) {
+    if (EVP_DigestSignUpdate(mdCtx, (const unsigned char*)transactionData.c_str(), transactionData.size()) <= 0) {
         std::cerr << "Errore nel calcolo dell'hash." << std::endl;
         EVP_PKEY_free(pkey);
         EVP_MD_CTX_free(mdCtx);
@@ -47,7 +45,7 @@ void Transaction::signTransaction(EC_KEY* privateKey) {
         return;
     }
 
-    if (EVP_DigestSign(mdCtx, hash, &hashLen, (const unsigned char*)transactionData.c_str(), transactionData.size()) <= 0) {
+    if (EVP_DigestSignFinal(mdCtx, NULL, &hashLen) <= 0) {
         std::cerr << "Errore nel calcolo dell'hash." << std::endl;
         EVP_PKEY_free(pkey);
         EVP_MD_CTX_free(mdCtx);
@@ -55,23 +53,19 @@ void Transaction::signTransaction(EC_KEY* privateKey) {
         return;
     }
 
-    unsigned char* sig = new unsigned char[EVP_PKEY_size(pkey)];
-    size_t sigLen;
-    if (EVP_SignFinal(mdCtx, sig, &sigLen, pkey) <= 0) {
+    if (EVP_DigestSignFinal(mdCtx, hash, &hashLen) <= 0) {
         std::cerr << "Errore nella firma." << std::endl;
         EVP_PKEY_free(pkey);
         EVP_MD_CTX_free(mdCtx);
         delete[] hash;
-        delete[] sig;
         return;
     }
 
-    signature = std::string(reinterpret_cast<char*>(sig), sigLen);
+    signature = std::string(reinterpret_cast<char*>(hash), hashLen);
 
     EVP_PKEY_free(pkey);
     EVP_MD_CTX_free(mdCtx);
     delete[] hash;
-    delete[] sig;
 }
 
 bool Transaction::isValid(){
