@@ -1,6 +1,7 @@
 #ifndef KEY_H
 #define KEY_H
 
+#include <string>
 #include <openssl/ec.h>
 
 class Key {

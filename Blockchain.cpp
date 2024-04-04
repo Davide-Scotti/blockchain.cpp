@@ -1,11 +1,9 @@
 #include "Blockchain.h"
 
-// Costruttore con difficoltà predefinita e ricompensa predefinita
 Blockchain::Blockchain() : difficulty(4), reward(10.0) {
     chain.emplace_back(createGenesisBlock());
 }
 
-// Costruttore con specifica difficoltà e ricompensa
 Blockchain::Blockchain(uint32_t diff, double rew) : difficulty(diff), reward(rew) {
     chain.emplace_back(createGenesisBlock());
 }
@@ -24,7 +22,6 @@ void Blockchain::minePendingTransactions(const std::string& minerAddress) {
     chain.push_back(block);
     pendingTransactions.clear();
 
-    // Aggiungo la ricompensa per il miner
     Transaction rewardTransaction("Reward", minerAddress, reward);
     pendingTransactions.push_back(rewardTransaction);
 }
@@ -49,12 +46,10 @@ bool Blockchain::isChainValid() const {
         const Block &currentBlock = chain[i];
         const Block &previousBlock = chain[i - 1];
 
-        // Verifica l'hash del blocco corrente 
         if(currentBlock.getHash() != currentBlock.calculateHash()) {
             return false;
         }
 
-        // Verifica che l'hash del blocco precedente corrisponda 
         if(currentBlock.getPreviousHash() != previousBlock.getHash()) {
             return false;
         }
@@ -68,7 +63,6 @@ void Blockchain::validateChain() {
         Block &currentBlock = chain[i];
         Block &previousBlock = chain[i - 1];
 
-        // Ricomputo l'hash del blocco
         currentBlock.setPreviousHash(previousBlock.getHash());
         currentBlock.mineBlock(difficulty);
     }

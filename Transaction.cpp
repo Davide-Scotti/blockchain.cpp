@@ -1,5 +1,6 @@
 #include "Transaction.h"
 #include <openssl/evp.h>
+#include <openssl/ec.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
 #include <cstring>
@@ -9,25 +10,38 @@ Transaction::Transaction(const std::string& from, const std::string& to, double 
     : fromAddress(from), toAddress(to), amount(amt), signature("") {}
 
 void Transaction::signTransaction(EC_KEY* privateKey) {
-    // Creo un contesto di firma
     EVP_MD_CTX* mdCtx = EVP_MD_CTX_new();
     if (!mdCtx) {
         std::cerr << "Errore nella creazione del contesto di firma." << std::endl;
         return;
     }
 
-    if (EVP_DigestSignInit(mdCtx, NULL, EVP_sha256(), NULL, privateKey) <= 0) {
-        std::cerr << "Errore nell'inizializzazione della firma." << std::endl;
+    EVP_PKEY* pkey = EVP_PKEY_new();
+    if (!pkey) {
+        std::cerr << "Errore nella creazione della chiave EVP_PKEY." << std::endl;
+        EVP_MD_CTX_free(mdCtx);
+        return;
+    }
+    if (EVP_PKEY_assign_EC_KEY(pkey, privateKey) <= 0) {
+        std::cerr << "Errore nell'assegnazione della chiave privata." << std::endl;
+        EVP_PKEY_free(pkey);
         EVP_MD_CTX_free(mdCtx);
         return;
     }
 
-    // Calcolo l'hash della transazione
+    if (EVP_DigestSignInit(mdCtx, NULL, EVP_sha256(), NULL, pkey) <= 0) {
+        std::cerr << "Errore nell'inizializzazione della firma." << std::endl;
+        EVP_PKEY_free(pkey);
+        EVP_MD_CTX_free(mdCtx);
+        return;
+    }
+
     std::string transactionData = toString();
     unsigned char* hash = new unsigned char[EVP_MAX_MD_SIZE];
-    unsigned int hashLen;
+    size_t hashLen;
     if (EVP_DigestSign(mdCtx, NULL, &hashLen, (const unsigned char*)transactionData.c_str(), transactionData.size()) <= 0) {
         std::cerr << "Errore nel calcolo dell'hash." << std::endl;
+        EVP_PKEY_free(pkey);
         EVP_MD_CTX_free(mdCtx);
         delete[] hash;
         return;
@@ -35,25 +49,26 @@ void Transaction::signTransaction(EC_KEY* privateKey) {
 
     if (EVP_DigestSign(mdCtx, hash, &hashLen, (const unsigned char*)transactionData.c_str(), transactionData.size()) <= 0) {
         std::cerr << "Errore nel calcolo dell'hash." << std::endl;
+        EVP_PKEY_free(pkey);
         EVP_MD_CTX_free(mdCtx);
         delete[] hash;
         return;
     }
 
-    // Firma l'hash
+    unsigned char* sig = new unsigned char[EVP_PKEY_size(pkey)];
     size_t sigLen;
-    unsigned char* sig = new unsigned char[EVP_PKEY_size(EC_KEY_get0_public_key(privateKey))];
-    if (EVP_SignFinal(mdCtx, sig, &sigLen, privateKey) <= 0) {
+    if (EVP_SignFinal(mdCtx, sig, &sigLen, pkey) <= 0) {
         std::cerr << "Errore nella firma." << std::endl;
+        EVP_PKEY_free(pkey);
         EVP_MD_CTX_free(mdCtx);
         delete[] hash;
         delete[] sig;
         return;
     }
 
-    // Converti la firma in una stringa esadecimale per la memorizzazione
     signature = std::string(reinterpret_cast<char*>(sig), sigLen);
 
+    EVP_PKEY_free(pkey);
     EVP_MD_CTX_free(mdCtx);
     delete[] hash;
     delete[] sig;

@@ -1,6 +1,9 @@
 #include "Key.h"
 #include "Transaction.h"
 
+#include <iostream>
+
+
 int main(){
     // Genero una copia di chiavi pub/priv
     Key key;
