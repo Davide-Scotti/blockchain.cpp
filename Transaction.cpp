@@ -70,6 +70,30 @@ bool Transaction::isValid(){
         return false;
     }
 
+    // Verifico che la firma sia stata generata
+    if(signature.empty()) {
+        std::cerr << "Firma mancante." << std::endl;
+        return false;
+    }
+
+    // Carivo la chiave pubblica
+    Key key; 
+    EC_KEY* publicKey = key.loadPublicKey(fromAddress);
+    if(!publicKey) {
+        std::cerr << "Errore nel caricamento della chiave pubblica." << std::endl;
+        return false;
+    }
+
+    // Verifico la firma della transazione
+    if(!verifySignature(toString(), signature, publicKey)) {
+        std::cerr << "Firma non valida." << std::endl;
+        EC_KEY_free(publicKey);
+        return false;
+    }
+
+    // Rilascio la chiave pubblica
+    EC_KEY_free(publicKey);
+
     return true;
 }
 
