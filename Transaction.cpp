@@ -1,4 +1,6 @@
 #include "Transaction.h"
+#include "Key.h" 
+
 #include <openssl/evp.h>
 #include <openssl/ec.h>
 #include <openssl/pem.h>
@@ -68,33 +70,35 @@ void Transaction::signTransaction(EC_KEY* privateKey) {
     delete[] hash;
 }
 
-bool Transaction::isValid(){
-    if(fromAddress.empty() || toAddress.empty()) {
+bool Transaction::isValid() const {
+    if (fromAddress.empty() || toAddress.empty()) {
         std::cerr << "Indirizzi mittente e/o destinatario mancanti" << std::endl;
         return false;
     }
 
-    if(amount <= 0) {
+    if (amount <= 0) {
         std::cerr << "Importo non valido." << std::endl;
         return false;
     }
 
     // Verifico che la firma sia stata generata
-    if(signature.empty()) {
+    if (signature.empty()) {
         std::cerr << "Firma mancante." << std::endl;
         return false;
     }
 
-    // Carivo la chiave pubblica
-    Key key; 
-    EC_KEY* publicKey = key.loadPublicKey(fromAddress);
-    if(!publicKey) {
+    // Carico la chiave pubblica
+    Key key;
+    EC_KEY* publicKey = nullptr;
+    if (key.loadPublicKey(fromAddress)) {
+        publicKey = key.getECKey(); // Ottieni la chiave pubblica caricata
+    } else {
         std::cerr << "Errore nel caricamento della chiave pubblica." << std::endl;
         return false;
     }
 
     // Verifico la firma della transazione
-    if(!verifySignature(toString(), signature, publicKey)) {
+    if (!verifySignature(toString(), signature, publicKey)) {
         std::cerr << "Firma non valida." << std::endl;
         EC_KEY_free(publicKey);
         return false;

@@ -14,6 +14,7 @@ class Key {
 
         bool generateKey();
         EC_KEY* getECKey() const;
+        bool loadPublicKey(const std::string& publicKeyPEM);
         std::string getPublicKeyPEM() const;
         std::string getPrivateKeyPEM() const;
 };

@@ -21,6 +21,28 @@ bool Key::generateKey() {
     return true;
 }
 
+bool Key::loadPublicKey(const std::string& publicKeyPEM){
+    BIO* bio = BIO_new_mem_buf(publicKeyPEM.c_str(), -1);
+        if (!bio) {
+            std::cerr << "Errore nella creazione di BIO." << std::endl;
+            return false;
+        }
+
+        EC_KEY* loadedKey = PEM_read_bio_EC_PUBKEY(bio, NULL, NULL, NULL);
+        BIO_free(bio);
+
+        if (!loadedKey) {
+            std::cerr << "Errore nel caricamento della chiave pubblica." << std::endl;
+            return false;
+        }
+
+        if (ecKey) {
+            EC_KEY_free(ecKey);
+        }
+        ecKey = loadedKey;
+        return true;
+}
+
 std::string Key::getPublicKeyPEM() const {
     BIO* bio = BIO_new(BIO_s_mem());
     if (!bio) {
