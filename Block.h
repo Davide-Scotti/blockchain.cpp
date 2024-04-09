@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <iostream>
+#include <string>
+#include <ctime>
 
 class Block {
 private:
@@ -15,35 +17,17 @@ private:
     std::string calculateHash() const;
 
 public:
-    // Costruttore
     Block(uint32_t index, const std::string &data);
 
-    // Getter per l'indice del blocco
-    uint32_t getIndex() const { return index; }
-
-    // Getter per il nonce
-    uint64_t getNonce() const { return nonce; }
-
-    // Getter per il timestamp
-    time_t getTimestamp() const { return timestamp; }
-
-    // Setter per il timestamp
-    void setTimestamp(time_t ts) { timestamp = ts; }
-
-    // Funzione per minare il blocco
+    uint32_t getIndex() const;
+    uint64_t getNonce() const;
+    time_t getTimestamp() const;
+    void setTimestamp(time_t ts);
     void mineBlock(uint32_t difficulty);
-
-     // Getter per l'hash del blocco
     std::string getHash() const;
-
-    // Getter per l'hash del blocco precedente
     std::string getPreviousHash() const;
-
-    // Setter per l'hash del blocco precedente 
-    void setPreviousHash(const std::string &prevHash) { previousHash = prevHash; }
-
-    // Setter per i dati del blocco
-    void setData(const std::string &dataValue) { data = dataValue; }
+    void setPreviousHash(const std::string &prevHash);
+    void setData(const std::string &dataValue);
 };
 
-#endif //BLOCK_H
+#endif // BLOCK_H

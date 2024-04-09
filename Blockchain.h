@@ -4,38 +4,27 @@
 #include <cstdint>
 #include <vector>
 #include <iostream>
-
 #include "Block.h"
-#include "Transaction.h" // Aggiunta
+#include "Transaction.h" // Assicurati di avere la classe Transaction definita
 
 class Blockchain {
-    private: 
-        uint32_t difficulty;
-        double reward;
-        std::vector<Block> chain;
-        std::vector<Transaction> pendingTransactions;
+private:
+    uint32_t difficulty;
+    double reward;
+    std::vector<Block> chain;
+    std::vector<Transaction> pendingTransactions;
 
-        Block createGenesisBlock();
-        bool isChainValid() const;
+    Block createGenesisBlock();
+    bool isChainValid() const;
 
-    public: 
-        // Costruttore base
-        Blockchain();
+public:
+    Blockchain();
+    Blockchain(uint32_t diff, double rew);
 
-        // Costruttore con campi
-        Blockchain(uint32_t diff, double rew);
-
-        // Aggiunge una transazione alla lista delle transazioni in sospeso
-        void addTransaction(const Transaction& transaction);
-
-        // Minare un nuovo blocco contenente le transazioni in sospeso
-        void minePendingTransactions(const std::string& minerAddress);
-
-        // Stampa la blockchain
-        void printChain() const;
-
-        // Verifica e correggi la validità della blockchain se necessario
-        void validateChain();
+    void addTransaction(const Transaction& transaction);
+    void minePendingTransactions(const std::string& minerAddress);
+    void printChain() const;
+    void validateChain();
 };
 
-#endif //BLOCKCHAIN_H
+#endif // BLOCKCHAIN_H

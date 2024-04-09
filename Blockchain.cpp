@@ -9,7 +9,7 @@ Blockchain::Blockchain(uint32_t diff, double rew) : difficulty(diff), reward(rew
 }
 
 Block Blockchain::createGenesisBlock() {
-    return Block(0, std::vector<Transaction>(), "Genesis Block");
+    return Block(0, "Genesis Block");
 }
 
 void Blockchain::addTransaction(const Transaction& transaction) {
@@ -17,7 +17,10 @@ void Blockchain::addTransaction(const Transaction& transaction) {
 }
 
 void Blockchain::minePendingTransactions(const std::string& minerAddress) {
-    Block block(chain.back().getIndex() + 1, pendingTransactions, minerAddress);
+    Block block(chain.back().getIndex() + 1, "Pending Transactions");
+    for (const auto& transaction : pendingTransactions) {
+        block.addTransaction(transaction);
+    }
     block.mineBlock(difficulty);
     chain.push_back(block);
     pendingTransactions.clear();
@@ -27,32 +30,28 @@ void Blockchain::minePendingTransactions(const std::string& minerAddress) {
 }
 
 void Blockchain::printChain() const {
-    for (const auto &block : chain) {
+    for (const auto& block : chain) {
         std::cout << "Block #" << block.getIndex() << " - Timestamp: " << block.getTimestamp()
                   << " - Nonce: " << block.getNonce() << " - Hash: " << block.getHash()
                   << " - Previous Hash: " << block.getPreviousHash() << std::endl;
 
         std::cout << "Transactions:" << std::endl;
-        // NOTA: La funzione getTransactions() deve essere implementata nella classe Block
-        // per ottenere il vettore di transazioni.
-        //for (const auto &transaction : block.getTransactions()) {
-        //    std::cout << "\t" << transaction.getSender() << " -> " << transaction.getRecipient()
-        //              << ": " << transaction.getAmount() << " coins" << std::endl;
-        //}
+        // In questo punto dovresti iterare sulle transazioni di ogni blocco
+        // e stamparle a schermo
         std::cout << std::endl;
     }
 }
 
 bool Blockchain::isChainValid() const {
-    for(uint32_t i = 1; i < chain.size(); ++i){
-        const Block &currentBlock = chain[i];
-        const Block &previousBlock = chain[i - 1];
+    for (uint32_t i = 1; i < chain.size(); ++i) {
+        const Block& currentBlock = chain[i];
+        const Block& previousBlock = chain[i - 1];
 
-        if(currentBlock.getHash() != currentBlock.calculateHash()) {
+        if (currentBlock.getHash() != currentBlock.calculateHash()) {
             return false;
         }
 
-        if(currentBlock.getPreviousHash() != previousBlock.getHash()) {
+        if (currentBlock.getPreviousHash() != previousBlock.getHash()) {
             return false;
         }
     }
@@ -61,9 +60,9 @@ bool Blockchain::isChainValid() const {
 }
 
 void Blockchain::validateChain() {
-    for(uint32_t i = 1; i < chain.size(); ++i) {
-        Block &currentBlock = chain[i];
-        Block &previousBlock = chain[i - 1];
+    for (uint32_t i = 1; i < chain.size(); ++i) {
+        Block& currentBlock = chain[i];
+        Block& previousBlock = chain[i - 1];
 
         currentBlock.setPreviousHash(previousBlock.getHash());
         currentBlock.mineBlock(difficulty);

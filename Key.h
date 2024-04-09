@@ -2,21 +2,25 @@
 #define KEY_H
 
 #include <string>
-#include <openssl/ec.h>
+#include <iostream>
+#include <random>
+#include <iomanip>
 
 class Key {
-    private: 
-        EC_KEY* ecKey;
+private:
+    std::string publicKey;
+    std::string privateKey;
 
-    public:
-        Key();
-        ~Key();
+    std::string generateRandomHex(const size_t len) const;
 
-        bool generateKey();
-        EC_KEY* getECKey() const;
-        bool loadPublicKey(const std::string& publicKeyPEM);
-        std::string getPublicKeyPEM() const;
-        std::string getPrivateKeyPEM() const;
+public:
+    Key();
+    ~Key();
+
+    bool generateKeyPair();
+    std::string getPublicKey() const;
+    std::string getPrivateKey() const;
+    std::string sign(const std::string& data) const;
 };
 
 #endif // KEY_H

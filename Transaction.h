@@ -2,33 +2,33 @@
 #define TRANSACTION_H
 
 #include <string>
-#include <openssl/ec.h>
-#include <openssl/ecdsa.h>
-#include <openssl/objects.h>
+#include "Key.h" // Include la classe Key per la firma
 
 class Transaction {
-    private:
-        std::string fromAddress;
-        std::string toAddress;
-        double amount;
-        std::string signature;
+private:
+    std::string fromAddress;
+    std::string toAddress;
+    double amount;
+    std::string signature;
 
-    public: 
-        // Costruttore
-        Transaction(const std::string& fromAddress, const std::string& toAddress, double amount);
+public:
+    // Costruttore
+    Transaction(const std::string& from, const std::string& to, double amt);
 
-        // Funzioni per la gestione della firma digitale
-        void signTransaction(EC_KEY* privateKey);
-        bool isValid() const;
+    // Funzione per la firma della transazione
+    void signTransaction(const Key& privateKey);
 
-        // Getters
-        std::string getFromAddress() const { return fromAddress; }
-        std::string getToAddress() const { return toAddress; }
-        double getAmount() const { return amount; }
-        std::string getSignature() const { return signature; }
+    // Funzione per la verifica della firma
+    bool isValid() const;
 
-        // Funzione per la serializzazione della transazione
-        std::string toString() const;
+    // Getters
+    std::string getFromAddress() const { return fromAddress; }
+    std::string getToAddress() const { return toAddress; }
+    double getAmount() const { return amount; }
+    std::string getSignature() const { return signature; }
+
+    // Funzione per la rappresentazione testuale della transazione
+    std::string toString() const;
 };
 
 #endif // TRANSACTION_H
