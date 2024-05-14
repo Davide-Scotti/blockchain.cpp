@@ -103,6 +103,7 @@ void CBlock::mine(int difficulty)
     {
         mNonce++;
         calculateHash();
+        usleep(10);
     }
 }
 
