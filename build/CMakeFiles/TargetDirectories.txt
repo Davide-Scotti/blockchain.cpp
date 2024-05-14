@@ -1,0 +1,3 @@
+/workspace/blockchain.cpp/build/CMakeFiles/simple-cpp-blockchain.dir
+/workspace/blockchain.cpp/build/CMakeFiles/edit_cache.dir
+/workspace/blockchain.cpp/build/CMakeFiles/rebuild_cache.dir
