@@ -11,7 +11,7 @@ CBlock::CBlock(CBlock* prevBlock)
     if(mPrevBlock)
         memcpy(mPrevHash, mPrevBlock -> getHash(), SHA256_DIGEST_LENGTH);
     else
-        memset(mPrevHash, mPrevBlock -> getHash(), 0);
+        memset(mPrevHash, 0, SHA256_DIGEST_LENGTH);
     mCreatedTS = time(0);
     mNonce = 0;
     mDataSize = 0;
@@ -19,7 +19,7 @@ CBlock::CBlock(CBlock* prevBlock)
     calculateHash();
 }
 
-CBlock::calculateHash()
+void CBlock::calculateHash()
 {
     uint32_t sz = (SHA256_DIGEST_LENGTH * sizeof(uint8_t)) + sizeof(time_t) + mDataSize + sizeof(uint32_t);
 
